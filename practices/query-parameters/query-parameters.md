@@ -10,22 +10,24 @@ A query parameter is an optional key-value pair added to the end of a URL, after
 - Keeps result sets flexible: return one match, many matches, or none
 
 ## Syntax
-
+```python
 @app.get("/route")
 async def function_name(param_name: type):
     return {"param_name": param_name}
-
+```
 Multiple query parameters:
-
+```python
 @app.get("/books/")
 async def read_books(category: str, author: str):
     return {"category": category, "author": author}
+```
 
 Called as:
+```python
 /books/?category=science&author=author+one
-
+```
 ## How
-
+```python
 @app.get("/books/")
 async def read_category_by_query(category: str):
     books_to_return = []
@@ -33,6 +35,7 @@ async def read_category_by_query(category: str):
         if book.get('category', '').casefold() == category.casefold():
             books_to_return.append(book)
     return books_to_return
+```
 
 - `/books/?category=science` → `category = "science"`
 - Loops through the collection, returns all matches (not just one)
@@ -49,9 +52,20 @@ Not for identifying one specific resource by ID — that's what path parameters 
 ## Path + Query Together
 You can combine both in a single route — path parameter for a specific field, query parameter for an additional filter:
 
+```python
 @app.get("/books/{book_author}")
 async def read_author_category_by_book(book_author: str, category: str):
     books_to_return = []
     for book in BOOKS:
         if book.get('author', '').casefold() == book_author.casefold() and \
-           book.get('category', '').casefold() ==
+           book.get('category', '').casefold() == category.casefold():
+            books_to_return.append(book)
+    return books_to_return
+
+```
+Called as:
+/books/author%20one?category=science
+
+- `author one` → path parameter (`{book_author}`)
+- `science` → query parameter (`category`)
+- `%20` → URL-encoded space
